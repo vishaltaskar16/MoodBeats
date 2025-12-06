@@ -249,6 +249,108 @@ def favorites():
     
     return render_template('favorites.html', username=session['username'], favorites=favorites, active_page='favorites')
 
+# Voice Tone Detection Routes
+@app.route('/voice-detection')
+@login_required
+def voice_detection():
+    return render_template('voice_detection.html', username=session['username'])
+
+@app.route('/detect/voice', methods=['POST'])
+@login_required
+def detect_voice_emotion():
+    try:
+        # In a real implementation, you would process the audio file here
+        # For demo purposes, we'll simulate voice analysis
+        
+        # Get the uploaded audio file
+        if 'audio' not in request.files:
+            return jsonify({'status': 'error', 'message': 'No audio file provided'}), 400
+        
+        audio_file = request.files['audio']
+        if audio_file.filename == '':
+            return jsonify({'status': 'error', 'message': 'No selected file'}), 400
+        
+        # Save the audio file temporarily
+        filename = secure_filename(f"voice_{int(time.time())}.wav")
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        audio_file.save(filepath)
+        
+        # Simulate voice emotion analysis
+        # In production, you would use a voice emotion detection library here
+        emotions = ['happy', 'sad', 'angry', 'relaxed', 'neutral', 'surprise', 'fear']
+        detected_emotion = random.choice(emotions)
+        confidence = round(random.uniform(0.7, 0.95), 2)
+        
+        # Get music recommendations based on detected emotion
+        query = MOOD_QUERIES.get(detected_emotion, MOOD_QUERIES['neutral'])['query']
+        videos = youtube_music.search_videos(query)
+        
+        # Clean up the temporary file
+        if os.path.exists(filepath):
+            os.remove(filepath)
+        
+        return jsonify({
+            'status': 'success',
+            'emotion': detected_emotion,
+            'confidence': confidence,
+            'tracks': videos,
+            'query': query,
+            'count': len(videos)
+        })
+        
+    except Exception as e:
+        if 'filepath' in locals() and os.path.exists(filepath):
+            os.remove(filepath)
+        return jsonify({
+            'status': 'error',
+            'message': 'Failed to process voice recording',
+            'error': str(e)
+        }), 500
+
+@app.route('/save-voice-analysis', methods=['POST'])
+@login_required
+def save_voice_analysis():
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'success': False, 'error': 'No data provided'}), 400
+            
+        mood = data.get('mood')
+        confidence = data.get('confidence')
+        recording_duration = data.get('duration')
+        
+        if not mood:
+            return jsonify({'success': False, 'error': 'Mood data is required'}), 400
+        
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        query = """
+            INSERT INTO voice_history 
+                (user_id, detected_mood, confidence, duration, analyzed_at)
+            VALUES 
+                (%s, %s, %s, %s, NOW())
+        """
+        cursor.execute(query, (session['user_id'], mood, confidence, recording_duration))
+        conn.commit()
+        
+        history_id = cursor.lastrowid
+        cursor.close()
+        conn.close()
+        
+        return jsonify({'success': True, 'history_id': history_id})
+        
+    except Exception as e:
+        if 'conn' in locals():
+            conn.rollback()
+            cursor.close()
+            conn.close()
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'message': 'Failed to save voice analysis'
+        }), 500
+
 @app.route('/add_to_favorites', methods=['POST'])
 @login_required
 def add_to_favorites():

@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Emotion Detector</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #ff6b35;
+            --secondary: #e74c3c;
+            --accent: #ff9f43;
+            --light: #f8f9fa;
+            --dark: #2c3e50;
+            --darker: #1a252f;
+            --grey: #34495e;
+            --light-grey: #7f8c8d;
+            --success: #27ae60;
+            --info: #3498db;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #2c3e50 0%, #1a252f 100%);
+            min-height: 100vh;
+            color: var(--light);
+        }
+        
+        .navbar {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+        
+        .hero-section {
+            padding: 80px 0;
+            background: linear-gradient(rgba(255, 107, 53, 0.9), rgba(231, 76, 60, 0.9));
+            color: white;
+            border-radius: 0 0 30px 30px;
+            margin-bottom: 50px;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+            overflow: hidden;
+            background: var(--darker);
+            color: var(--light);
+        }
+        
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+        }
+        
+        .upload-area {
+            border: 3px dashed var(--primary);
+            border-radius: 15px;
+            padding: 40px 20px;
+            text-align: center;
+            background-color: rgba(255, 107, 53, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--light);
+        }
+        
+        .upload-area:hover {
+            background-color: rgba(255, 107, 53, 0.2);
+            border-color: var(--accent);
+        }
+        
+        .upload-icon {
+            font-size: 4rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            border: none;
+            border-radius: 50px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 15px rgba(255, 107, 53, 0.4);
+            background: linear-gradient(to right, var(--secondary), var(--primary));
+        }
+        
+        .btn-light {
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--dark);
+            border: none;
+            border-radius: 50px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-light:hover {
+            background: white;
+            transform: translateY(-3px);
+            box-shadow: 0 7px 15px rgba(255, 255, 255, 0.3);
+        }
+        
+        .btn-outline-light {
+            border: 2px solid rgba(255, 255, 255, 0.7);
+            color: white;
+            border-radius: 50px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-outline-light:hover {
+            background: white;
+            color: var(--dark);
+            transform: translateY(-3px);
+        }
+        
+        .feature-icon {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+        
+        .emotion-card {
+            text-align: center;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            background: var(--grey);
+        }
+        
+        .emotion-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+        }
+        
+        .emotion-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        
+        .happy { background: linear-gradient(135deg, #ff9f43 0%, #e74c3c 100%); }
+        .sad { background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); }
+        .angry { background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); }
+        .neutral { background: linear-gradient(135deg, #7f8c8d 0%, #95a5a6 100%); }
+        .fearful { background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%); }
+        
+        .footer {
+            background: linear-gradient(to right, var(--darker), #1a252f);
+            color: white;
+            padding: 40px 0;
+            margin-top: 80px;
+            border-top: 1px solid var(--grey);
+        }
+        
+        .progress {
+            height: 10px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            background-color: var(--grey);
+        }
+        
+        .progress-bar {
+            border-radius: 10px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+        }
+        
+        .stats-card {
+            background: var(--grey);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            margin-bottom: 20px;
+            color: var(--light);
+        }
+        
+        .stats-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .file-info {
+            background-color: rgba(255, 107, 53, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            display: none;
+            color: var(--light);
+            border: 1px solid var(--primary);
+        }
+        
+        .result-section {
+            display: none;
+            margin-top: 40px;
+        }
+        
+        .song-card {
+            border-radius: 10px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            height: 100%;
+            background: var(--grey);
+        }
+        
+        .song-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+        }
+        
+        .song-thumbnail {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+        }
+        
+        .shorts-container {
+            overflow-x: auto;
+            white-space: nowrap;
+            padding: 15px 0;
+        }
+        
+        .short-card {
+            display: inline-block;
+            width: 300px;
+            margin-right: 15px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            background: var(--grey);
+        }
+        
+        .short-thumbnail {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+        }
+        
+        .mood-section {
+            margin: 40px 0;
+        }
+        
+        .mood-btn {
+            margin: 5px;
+            border-radius: 50px;
+            background: var(--grey);
+            color: var(--light);
+            border: 1px solid var(--light-grey);
+        }
+        
+        .active-mood {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+        }
+        
+        .player-container {
+            background: var(--grey);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            margin-top: 20px;
+            color: var(--light);
+        }
+        
+        .player-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .player-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--primary);
+            color: white;
+            border: none;
+            transition: all 0.3s ease;
+        }
+        
+        .player-btn:hover {
+            transform: scale(1.1);
+            background: var(--secondary);
+        }
+        
+        .play-btn {
+            width: 60px;
+            height: 60px;
+        }
+        
+        .progress-container {
+            flex-grow: 1;
+            margin: 0 15px;
+        }
+        
+        .volume-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--light);
+        }
+        
+        .emotion-result {
+            text-align: center;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 20px 0;
+            background: var(--grey);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            color: var(--light);
+        }
+        
+        .emotion-icon-large {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+        
+        .confidence-bar {
+            height: 20px;
+            border-radius: 10px;
+            background: var(--darker);
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .confidence-fill {
+            height: 100%;
+            border-radius: 10px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            transition: width 1s ease;
+        }
+        
+        .youtube-player {
+            width: 100%;
+            height: 400px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+        
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        /* Additional styles for the modal */
+        .modal-content {
+            border-radius: 15px;
+            overflow: hidden;
+            border: none;
+            background: var(--darker);
+            color: var(--light);
+        }
+        
+        .modal-header {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            border-bottom: none;
+        }
+        
+        .modal-title {
+            font-weight: 600;
+        }
+        
+        .btn-close {
+            filter: invert(1);
+        }
+        
+        .modal-footer {
+            border-top: 1px solid var(--grey);
+            background-color: var(--darker);
+        }
+        
+        /* Ensure video iframe looks good */
+        .ratio-16x9 iframe {
+            border-radius: 0 !important;
+        }
+        
+        /* Text colors */
+        .text-muted {
+            color: var(--light-grey) !important;
+        }
+        
+        .alert-info {
+            background-color: rgba(52, 152, 219, 0.2);
+            border-color: var(--info);
+            color: var(--light);
+        }
+        
+        /* Form controls */
+        .form-range::-webkit-slider-thumb {
+            background: var(--primary);
+        }
+        
+        .form-range::-moz-range-thumb {
+            background: var(--primary);
+        }
+        
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--darker);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary);
+        }
+        
+        /* Navbar links */
+        .navbar-nav .nav-link {
+            color: rgba(255, 255, 255, 0.9) !important;
+            transition: color 0.3s ease;
+        }
+        
+        .navbar-nav .nav-link:hover {
+            color: white !important;
+        }
+        
+        /* Footer links */
+        .footer a {
+            color: var(--light-grey);
+            transition: color 0.3s ease;
+            text-decoration: none;
+        }
+        
+        .footer a:hover {
+            color: var(--primary);
+        }
+        
+        /* Section headings */
+        h1, h2, h3, h4, h5, h6 {
+            color: var(--light);
+        }
+        
+        /* Card titles */
+        .card-title {
+            color: var(--light);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-microphone-alt me-2"></i>Voice Emotion Detector
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#features">Features</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#how-it-works">How It Works</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#contact">Contact</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Updated Hero Section with Demo Modal -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h1 class="display-4 fw-bold mb-4">Mood Beats</h1>
+                    <p class="lead mb-4">Our advanced AI technology analyzes vocal patterns to detect emotions with high accuracy. Simply upload an audio file and get instant insights.</p>
+                    <div class="d-flex gap-3 flex-wrap">
+                        <button class="btn btn-light btn-lg" data-bs-toggle="modal" data-bs-target="#demoModal">
+                           <a href="https://drive.google.com/file/d/1chjmbxuRVAIj1aP96Ra7yUGoaJpWMoF_/view?usp=sharing"><i class="fas fa-play-circle me-2"></i>See Demo</a> 
+                        </button>
+                        
+                    </div>
+                </div>
+                <div class="col-lg-6 text-center">
+                    <div class="pulse">
+                        <i class="fas fa-microphone-alt fa-8x text-white"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Upload Section -->
+    <section class="container mb-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-body p-5">
+                        <h2 class="text-center mb-4">Upload Your Audio File</h2>
+                        <p class="text-center mb-4">Supported formats: WAV, MP3, M4A, FLAC, OGG</p>
+                        
+                        <form id="uploadForm" enctype="multipart/form-data">
+                            <div class="upload-area" id="uploadArea">
+                                <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                                <h4>Drag & Drop Your Audio File</h4>
+                                <p class="text-muted">or click to browse</p>
+                                <input type="file" name="audio" id="audioFile" accept="audio/*" required class="d-none">
+                            </div>
+                            
+                            <div class="file-info" id="fileInfo">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h5 id="fileName">File Name</h5>
+                                        <p class="mb-0 text-muted" id="fileSize">File Size</p>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" id="removeFile">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="text-center mt-4">
+                                <button type="submit" class="btn btn-primary btn-lg" id="detectBtn">
+                                    <i class="fas fa-brain me-2"></i>Detect Emotion
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="container mb-5">
+        <h2 class="text-center mb-5">Why Choose Our Emotion Detector</h2>
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 text-center p-4">
+                    <i class="fas fa-bolt feature-icon"></i>
+                    <h4>Fast Analysis</h4>
+                    <p>Get emotion detection results in seconds with our optimized algorithms.</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 text-center p-4">
+                    <i class="fas fa-chart-line feature-icon"></i>
+                    <h4>High Accuracy</h4>
+                    <p>Our AI model achieves over 95% accuracy in emotion classification.</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 text-center p-4">
+                    <i class="fas fa-shield-alt feature-icon"></i>
+                    <h4>Privacy First</h4>
+                    <p>Your audio files are processed securely and never stored on our servers.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="container mb-5">
+        <h2 class="text-center mb-5">How It Works</h2>
+        <div class="row">
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card text-center p-4">
+                    <div class="step-number" style="background: var(--primary); color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">1</div>
+                    <i class="fas fa-upload fa-2x text-primary mb-3"></i>
+                    <h5>Upload Audio</h5>
+                    <p>Select your audio file from your device or record directly.</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card text-center p-4">
+                    <div class="step-number" style="background: var(--primary); color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">2</div>
+                    <i class="fas fa-cogs fa-2x text-primary mb-3"></i>
+                    <h5>AI Processing</h5>
+                    <p>Our algorithm analyzes vocal features and patterns.</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card text-center p-4">
+                    <div class="step-number" style="background: var(--primary); color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">3</div>
+                    <i class="fas fa-chart-pie fa-2x text-primary mb-3"></i>
+                    <h5>Emotion Analysis</h5>
+                    <p>Detect multiple emotions with confidence scores.</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card text-center p-4">
+                    <div class="step-number" style="background: var(--primary); color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">4</div>
+                    <i class="fas fa-file-alt fa-2x text-primary mb-3"></i>
+                    <h5>Get Results</h5>
+                    <p>Receive detailed report with emotion breakdown.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Emotion Examples -->
+    <section class="container mb-5">
+        <h2 class="text-center mb-5">Detected Emotions</h2>
+        <div class="row">
+            <div class="col-md-2 col-6 mb-3">
+                <div class="emotion-card happy">
+                    <i class="fas fa-laugh emotion-icon"></i>
+                    <h5>Happy</h5>
+                </div>
+            </div>
+            <div class="col-md-2 col-6 mb-3">
+                <div class="emotion-card sad">
+                    <i class="fas fa-sad-tear emotion-icon"></i>
+                    <h5>Sad</h5>
+                </div>
+            </div>
+            <div class="col-md-2 col-6 mb-3">
+                <div class="emotion-card angry">
+                    <i class="fas fa-angry emotion-icon"></i>
+                    <h5>Angry</h5>
+                </div>
+            </div>
+            <div class="col-md-2 col-6 mb-3">
+                <div class="emotion-card neutral">
+                    <i class="fas fa-meh emotion-icon"></i>
+                    <h5>Neutral</h5>
+                </div>
+            </div>
+            <div class="col-md-2 col-6 mb-3">
+                <div class="emotion-card fearful">
+                    <i class="fas fa-surprise emotion-icon"></i>
+                    <h5>Fearful</h5>
+                </div>
+            </div>
+            <div class="col-md-2 col-6 mb-3">
+                <div class="emotion-card happy">
+                    <i class="fas fa-grin-tongue emotion-icon"></i>
+                    <h5>Surprised</h5>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="container mb-5">
+        <div class="row">
+            <div class="col-md-3 col-6 text-center mb-4">
+                <div class="stats-card">
+                    <div class="stats-number">95%</div>
+                    <p>Accuracy Rate</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 text-center mb-4">
+                <div class="stats-card">
+                    <div class="stats-number">10K+</div>
+                    <p>Analyses Completed</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 text-center mb-4">
+                <div class="stats-card">
+                    <div class="stats-number">5</div>
+                    <p>Emotion Categories</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 text-center mb-4">
+                <div class="stats-card">
+                    <div class="stats-number">&lt;5s</div>
+                    <p>Average Processing Time</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Result Section -->
+    <section class="container result-section" id="resultSection">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="emotion-result">
+                    <i class="fas fa-laugh emotion-icon-large text-warning" id="resultIcon"></i>
+                    <h2 id="resultEmotion">Emotion Detected: <span id="emotionValue">Happy</span></h2>
+                    <p>Confidence Level</p>
+                    <div class="confidence-bar">
+                        <div class="confidence-fill" id="confidenceFill" style="width: 85%"></div>
+                    </div>
+                    <p id="confidenceValue">85%</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- YouTube Player -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <h3 class="mb-4">Now Playing</h3>
+                <div id="youtubePlayerContainer">
+                    <div class="alert alert-info text-center">
+                        Select a song to start playing
+                    </div>
+                    <iframe id="youtubePlayer" class="youtube-player" style="display: none;" 
+                            src="" frameborder="0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowfullscreen>
+                    </iframe>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recommended Songs -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <h3 class="mb-4">Recommended Songs for Your Mood</h3>
+                <div class="loading-spinner" id="songsLoading">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Loading recommended songs...</p>
+                </div>
+                <div class="row" id="songList">
+                    <!-- Songs will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- YouTube Shorts -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <h3 class="mb-4">YouTube Shorts for Your Mood</h3>
+                <div class="loading-spinner" id="shortsLoading">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Loading YouTube Shorts...</p>
+                </div>
+                <div class="shorts-container" id="shortsContainer">
+                    <!-- Shorts will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Mood Categories -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <h3 class="mb-4">Explore Other Moods</h3>
+                <div class="d-flex flex-wrap justify-content-center">
+                    <button class="btn btn-outline-primary mood-btn active-mood" data-mood="happy">Happy</button>
+                    <button class="btn btn-outline-primary mood-btn" data-mood="sad">Sad</button>
+                    <button class="btn btn-outline-primary mood-btn" data-mood="angry">Angry</button>
+                    <button class="btn btn-outline-primary mood-btn" data-mood="neutral">Calm</button>
+                    <button class="btn btn-outline-primary mood-btn" data-mood="fearful">Peaceful</button>
+                    <button class="btn btn-outline-primary mood-btn" data-mood="energetic">Energetic</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h4><i class="fas fa-microphone-alt me-2"></i>Voice Emotion Detector</h4>
+                    <p>Advanced AI technology for emotion detection in voice recordings with YouTube integration.</p>
+                    <div class="d-flex gap-3">
+                        <a href="#" class="text-white"><i class="fab fa-facebook fa-lg"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-twitter fa-lg"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-linkedin fa-lg"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-github fa-lg"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-white-50">Home</a></li>
+                        <li><a href="#features" class="text-white-50">Features</a></li>
+                        <li><a href="#how-it-works" class="text-white-50">How It Works</a></li>
+                        <li><a href="#" class="text-white-50">Pricing</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <h5>Resources</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-white-50">Documentation</a></li>
+                        <li><a href="#" class="text-white-50">API Reference</a></li>
+                        <li><a href="#" class="text-white-50">Blog</a></li>
+                        <li><a href="#" class="text-white-50">Support</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 mb-4">
+                    <h5>Contact Us</h5>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-envelope me-2"></i>MoodBeats@voicedetector.com</li>
+                        <li><i class="fas fa-phone me-2"></i>+91 5050505050</li>
+                        <li><i class="fas fa-map-marker-alt me-2"></i>Nashik-Adgaon</li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="my-4">
+            <div class="text-center">
+                <p>&copy; 2025 Voice Emotion Detector. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- YouTube IFrame API -->
+    <script>
+        // YouTube Player variables
+        let player;
+        let currentVideoId = '';
+        
+        // Load YouTube IFrame API
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+        
+        // YouTube API ready callback
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('youtubePlayer', {
+                height: '400',
+                width: '100%',
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+        }
+        
+        function onPlayerReady(event) {
+            console.log('YouTube Player is ready');
+        }
+        
+        function onPlayerStateChange(event) {
+            // Handle player state changes if needed
+        }
+    </script>
+    
+    <!-- Custom JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadArea = document.getElementById('uploadArea');
+            const audioFile = document.getElementById('audioFile');
+            const fileInfo = document.getElementById('fileInfo');
+            const fileName = document.getElementById('fileName');
+            const fileSize = document.getElementById('fileSize');
+            const removeFile = document.getElementById('removeFile');
+            const detectBtn = document.getElementById('detectBtn');
+            const resultSection = document.getElementById('resultSection');
+            const emotionValue = document.getElementById('emotionValue');
+            const confidenceValue = document.getElementById('confidenceValue');
+            const confidenceFill = document.getElementById('confidenceFill');
+            const resultIcon = document.getElementById('resultIcon');
+            const songList = document.getElementById('songList');
+            const shortsContainer = document.getElementById('shortsContainer');
+            const moodButtons = document.querySelectorAll('.mood-btn');
+            const youtubePlayer = document.getElementById('youtubePlayer');
+            const youtubePlayerContainer = document.getElementById('youtubePlayerContainer');
+            const songsLoading = document.getElementById('songsLoading');
+            const shortsLoading = document.getElementById('shortsLoading');
+            
+            let currentMood = 'happy';
+            
+            // Upload area click event
+            uploadArea.addEventListener('click', function() {
+                audioFile.click();
+            });
+            
+            // File input change event
+            audioFile.addEventListener('change', function(e) {
+                if (this.files && this.files[0]) {
+                    const file = this.files[0];
+                    fileName.textContent = file.name;
+                    fileSize.textContent = formatFileSize(file.size);
+                    fileInfo.style.display = 'block';
+                    
+                    // Change upload area text
+                    uploadArea.innerHTML = `
+                        <i class="fas fa-check-circle upload-icon text-success"></i>
+                        <h4>File Selected</h4>
+                        <p class="text-muted">Click to change file</p>
+                    `;
+                }
+            });
+            
+            // Remove file event
+            removeFile.addEventListener('click', function(e) {
+                e.stopPropagation();
+                audioFile.value = '';
+                fileInfo.style.display = 'none';
+                
+                // Reset upload area
+                uploadArea.innerHTML = `
+                    <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                    <h4>Drag & Drop Your Audio File</h4>
+                    <p class="text-muted">or click to browse</p>
+                `;
+            });
+            
+            // Drag and drop functionality
+            uploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.style.borderColor = 'var(--accent)';
+                this.style.backgroundColor = 'rgba(255, 107, 53, 0.2)';
+            });
+            
+            uploadArea.addEventListener('dragleave', function() {
+                this.style.borderColor = 'var(--primary)';
+                this.style.backgroundColor = 'rgba(255, 107, 53, 0.1)';
+            });
+            
+            uploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.style.borderColor = 'var(--primary)';
+                this.style.backgroundColor = 'rgba(255, 107, 53, 0.1)';
+                
+                if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                    audioFile.files = e.dataTransfer.files;
+                    const event = new Event('change', { bubbles: true });
+                    audioFile.dispatchEvent(event);
+                }
+            });
+            
+            // Format file size
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+            
+            // Form submission
+            document.getElementById('uploadForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                if (!audioFile.files.length) {
+                    alert('Please select an audio file first.');
+                    return;
+                }
+                
+                detectBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Analyzing...';
+                detectBtn.disabled = true;
+                
+                // Create FormData and send to API
+                const formData = new FormData();
+                formData.append('audio', audioFile.files[0]);
+                
+                fetch('/api/detect', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert(data.error);
+                        return;
+                    }
+                    
+                    displayResult(data.emotion, data.confidence);
+                    currentMood = data.emotion.toLowerCase();
+                    loadSongsForMood(currentMood);
+                    loadShortsForMood(currentMood);
+                    
+                    detectBtn.innerHTML = '<i class="fas fa-brain me-2"></i>Detect Emotion';
+                    detectBtn.disabled = false;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error detecting emotion. Please try again.');
+                    detectBtn.innerHTML = '<i class="fas fa-brain me-2"></i>Detect Emotion';
+                    detectBtn.disabled = false;
+                });
+            });
+            
+            // Display emotion result
+            function displayResult(emotion, confidence) {
+                emotionValue.textContent = emotion;
+                confidenceValue.textContent = `${(confidence * 100).toFixed(0)}%`;
+                confidenceFill.style.width = `${confidence * 100}%`;
+                
+                // Set appropriate icon
+                const iconMap = {
+                    'happy': 'fa-laugh text-warning',
+                    'sad': 'fa-sad-tear text-primary',
+                    'angry': 'fa-angry text-danger',
+                    'neutral': 'fa-meh text-secondary',
+                    'fearful': 'fa-surprise text-info'
+                };
+                
+                resultIcon.className = `fas ${iconMap[emotion.toLowerCase()] || 'fa-meh'} emotion-icon-large`;
+                
+                // Show result section
+                resultSection.style.display = 'block';
+                
+                // Scroll to results
+                resultSection.scrollIntoView({ behavior: 'smooth' });
+            }
+            
+            // Load songs for mood from YouTube API
+            function loadSongsForMood(mood) {
+                songsLoading.style.display = 'block';
+                songList.innerHTML = '';
+                
+                fetch(`/api/youtube/songs/${mood}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        songsLoading.style.display = 'none';
+                        
+                        if (data.songs && data.songs.length > 0) {
+                            data.songs.forEach(song => {
+                                const col = document.createElement('div');
+                                col.className = 'col-md-3 col-sm-6 mb-4';
+                                col.innerHTML = `
+                                    <div class="card song-card">
+                                        <img src="${song.thumbnail}" class="song-thumbnail" alt="${song.title}">
+                                        <div class="card-body">
+                                            <h6 class="card-title">${song.title}</h6>
+                                            <p class="card-text text-muted small">${song.channel}</p>
+                                            <button class="btn btn-sm btn-primary play-song" data-id="${song.id}" data-title="${song.title}">
+                                                <i class="fas fa-play me-1"></i> Play
+                                            </button>
+                                        </div>
+                                    </div>
+                                `;
+                                songList.appendChild(col);
+                            });
+                            
+                            // Add event listeners to play buttons
+                            document.querySelectorAll('.play-song').forEach(button => {
+                                button.addEventListener('click', function() {
+                                    const songId = this.getAttribute('data-id');
+                                    const songTitle = this.getAttribute('data-title');
+                                    playSong(songId, songTitle);
+                                });
+                            });
+                        } else {
+                            songList.innerHTML = '<div class="col-12 text-center"><p>No songs found for this mood.</p></div>';
+                        }
+                    })
+                    .catch(error => {
+                        songsLoading.style.display = 'none';
+                        songList.innerHTML = '<div class="col-12 text-center"><p>Error loading songs. Please try again.</p></div>';
+                        console.error('Error loading songs:', error);
+                    });
+            }
+            
+            // Load shorts for mood from YouTube API
+            function loadShortsForMood(mood) {
+                shortsLoading.style.display = 'block';
+                shortsContainer.innerHTML = '';
+                
+                fetch(`/api/youtube/shorts/${mood}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        shortsLoading.style.display = 'none';
+                        
+                        if (data.shorts && data.shorts.length > 0) {
+                            data.shorts.forEach(short => {
+                                const card = document.createElement('div');
+                                card.className = 'short-card';
+                                card.innerHTML = `
+                                    <img src="${short.thumbnail}" class="short-thumbnail" alt="${short.title}">
+                                    <div class="p-2">
+                                        <h6>${short.title}</h6>
+                                        <p class="small text-muted">${short.channel}</p>
+                                        <button class="btn btn-sm btn-outline-primary watch-short" data-id="${short.id}">
+                                            <i class="fab fa-youtube me-1"></i> Watch
+                                        </button>
+                                    </div>
+                                `;
+                                shortsContainer.appendChild(card);
+                            });
+                            
+                            // Add event listeners to watch buttons
+                            document.querySelectorAll('.watch-short').forEach(button => {
+                                button.addEventListener('click', function() {
+                                    const shortId = this.getAttribute('data-id');
+                                    window.open(`https://www.youtube.com/shorts/${shortId}`, '_blank');
+                                });
+                            });
+                        } else {
+                            shortsContainer.innerHTML = '<div class="col-12 text-center"><p>No shorts found for this mood.</p></div>';
+                        }
+                    })
+                    .catch(error => {
+                        shortsLoading.style.display = 'none';
+                        shortsContainer.innerHTML = '<div class="col-12 text-center"><p>Error loading shorts. Please try again.</p></div>';
+                        console.error('Error loading shorts:', error);
+                    });
+            }
+            
+            // Play song in YouTube player
+            function playSong(videoId, title) {
+                currentVideoId = videoId;
+                
+                // Show YouTube player
+                youtubePlayer.style.display = 'block';
+                youtubePlayerContainer.querySelector('.alert').style.display = 'none';
+                
+                // Load and play the video
+                if (player && player.loadVideoById) {
+                    player.loadVideoById(videoId);
+                    player.playVideo();
+                } else {
+                    // Fallback: open in new tab
+                    window.open(`https://www.youtube.com/watch?v=${videoId}`, '_blank');
+                }
+            }
+            
+            // Mood buttons
+            moodButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    moodButtons.forEach(btn => btn.classList.remove('active-mood'));
+                    // Add active class to clicked button
+                    this.classList.add('active-mood');
+                    
+                    const mood = this.getAttribute('data-mood');
+                    currentMood = mood;
+                    loadSongsForMood(mood);
+                    loadShortsForMood(mood);
+                });
+            });
+            
+            // Initialize with happy mood content
+            loadSongsForMood('happy');
+            loadShortsForMood('happy');
+        });
+    </script>
+</body>
+</html>

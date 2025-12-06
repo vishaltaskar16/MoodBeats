@@ -289,13 +289,12 @@
                 <div class="col-md-6 col-lg-3">
                     <div class="feature-card card h-100 border-0 shadow-sm">
                         <div class="card-body text-center p-4 position-relative">
-                            <span class="badge bg-info position-absolute top-0 end-0 m-3">Under Devlopement</span>
                             <div class="feature-icon bg-danger bg-opacity-10 text-danger rounded-circle mx-auto mb-4">
                                 <i class="fas fa-microphone fa-2x"></i>
                             </div>
                             <h3 class="h5 fw-bold">Voice Recognition</h3>
                             <p class="text-muted">Simply speak your mood and get instant music recommendations tailored to your emotional state.</p>
-                            <button class="btn btn-outline-danger mt-3">Check My Tone <i class="fas fa-arrow-right ms-2"></i></button>
+                            <button class="btn btn-outline-danger mt-3" onclick="window.location.href='{{ url_for('voice_detection') }}'">Check My Tone <i class="fas fa-arrow-right ms-2"></i></button>
                         </div>
                     </div>
                 </div>
